@@ -1,0 +1,202 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2024-03-28T00:13:31-05:00",
+    "name": "MidnightGhostHunt",
+    "author": "redforcereturns@gmail.com",
+    "description": "An egg for midnight ghost hunt servers.",
+    "features": null,
+    "docker_images": {
+        "ghcr.io\/redforce04\/midnightghosthunt:1.1.0": "ghcr.io\/redforce04\/midnightghosthunt:1.1.0"
+    },
+    "file_denylist": [],
+    "startup": "wine64 .\/ServerFiles\/MidnightGhostHuntServer.exe -log -Map=Mansion -Gamename=\"Redforces idiot playground\" -Gamemode=\"4v4 Hunt\" -Region=\"North America Central\" -password=\"password\" -NoBots -NoAutobalance -port {{SERVER_PORT}}",
+    "config": {
+        "files": "{\r\n    \"WindowsServer\/CustomRules.ini\": {\r\n        \"parser\": \"ini\",\r\n        \"find\": {}\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \"seconds to LoadMap\"\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\n## download and install steamcmd\r\nif [ ! \"${STEAM_USER}\" == \"\" ]; then\r\n    cd \/tmp\r\n    mkdir -p \/mnt\/server\/steamcmd\r\n    curl -sSL -o steamcmd.tar.gz https:\/\/steamcdn-a.akamaihd.net\/client\/installer\/steamcmd_linux.tar.gz\r\n    tar -xzvf steamcmd.tar.gz -C \/mnt\/server\/steamcmd\r\n    cd \/mnt\/server\/steamcmd\r\n\r\n    # SteamCMD fails otherwise for some reason, even running as root.\r\n    # This is changed at the end of the install process anyways.\r\n    WINDOWS_INSTALL=\"1\"\r\n    chown -R root:root \/mnt\r\n    export HOME=\/mnt\/server\r\n    .\/steamcmd\/steamcmd.sh +force_install_dir \/home\/container +login ${STEAM_USER} ${STEAM_PASS} ${STEAM_AUTH} $( [[ \"${WINDOWS_INSTALL}\" == \"1\" ]] && printf %s '+@sSteamCmdForcePlatformType windows' ) +app_update ${APP_ID} ${BETA_TAG} validate +quit\r\nfi\r\n## install game using steamcmd\r\n\r\n\r\n\r\ncd \/mnt\/server\/\r\n\r\n# Install Server Zip & Unzip\r\necho \"Installing Server Files\"\r\n[ ! -d \"\/mnt\/server\/WindowsServer\" ] && mkdir \/mnt\/server\/WindowsServer\r\ncd WindowsServer\r\n[ -f \/mnt\/server\/WindowsServer\/WindowsServer.zip ] && rm -f \/mnt\/server\/WindowsServer\/WindowsServer.zip\r\nwget ${ZIP_LINK} --header=\"${AUTH_HEADER}\"\r\n\r\necho \"Unzipping Files\"\r\nunzip -o WindowsServer.zip",
+            "container": "ghcr.io\/parkervcp\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Server Name",
+            "description": "The name that will show up on the server list.",
+            "env_variable": "GAME_NAME",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|min:3",
+            "field_type": "text"
+        },
+        {
+            "name": "Logging Enabled",
+            "description": "Enables or disables the game's default logging system.",
+            "env_variable": "LOGGING_ENABLED",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Map",
+            "description": "The first map that the server will load when the server is started.",
+            "env_variable": "MAP",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:Mansion,Asylum,Theatre,Museum,Ghost Ship,Carnival,School,Graveyard,Doll Factory,Mall",
+            "field_type": "text"
+        },
+        {
+            "name": "Gamemode",
+            "description": "The game-mode the server will run.",
+            "env_variable": "GAMEMODE",
+            "default_value": "4v4",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:4v4,6v6,Darkness",
+            "field_type": "text"
+        },
+        {
+            "name": "Region",
+            "description": "The region that the server is listed in.",
+            "env_variable": "GAME_REGION",
+            "default_value": "North America",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:North America,South America,Western Europe,Northern Europe,Eastern Europe,Middle East,Asia,Africa,Oceania",
+            "field_type": "text"
+        },
+        {
+            "name": "Password (optional)",
+            "description": "The password that is needed to connect to the server. Leave blank to disable the server password.",
+            "env_variable": "GAME_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:30",
+            "field_type": "text"
+        },
+        {
+            "name": "Bots Enabled",
+            "description": "Enables or disables bots from filling empty player slots. When enabled, bots will take the place of empty player slots.",
+            "env_variable": "BOTS_ENABLED",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Autobalance Enabled",
+            "description": "Enables or disables the auto-balance feature. When enabled, players will be forcefully changed to the other team when a player imbalance occurs.",
+            "env_variable": "AUTOBALANCE_ENABLED",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Enable Custom Config Parsing",
+            "description": "A custom config parser is built into this egg. It will automatically replace the CustomRules.ini with a json file configured at this server's creation. It can be disabled here.",
+            "env_variable": "CUSTOM_CONFIG_PARSER",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Beacon Port",
+            "description": "The second port used by players to connect to the server, and send menu info. This port must be allocated to the server.",
+            "env_variable": "BEACON_PORT",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer",
+            "field_type": "text"
+        },
+        {
+            "name": "CDN Zip Link (optional)",
+            "description": "A link to a zip file (with authentication) to download the server files. Server files MUST NOT leave your servers to not break Steam TOS. If hosted on a cdn, ensure the cdn is on a machine you own, and has proper authentication (header value supplied).",
+            "env_variable": "ZIP_LINK",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|active_url",
+            "field_type": "text"
+        },
+        {
+            "name": "CDN Authentication Header (optional)",
+            "description": "If Zip Link is being used to download server files, you can supply an authentication header here, to authorize with the cdn. For example: \"Authorization: Bearer {token}\"",
+            "env_variable": "AUTH_HEADER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Steam User (optional)",
+            "description": "Used for steamcmd updating. User must own the game. **USER CAN SEE THIS**",
+            "env_variable": "STEAM_USER",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Steam Password (optional)",
+            "description": "Used for updating the game via SteamCMD. **USER CAN SEE THIS**",
+            "env_variable": "STEAM_PASS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "STEAM_AUTH (optional)",
+            "description": "Used for updating via SteamCMD. Authentication value. **USER CAN SEE THIS**",
+            "env_variable": "STEAM_AUTH",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "App Id (optional)",
+            "description": "Used to set the app id of the Midnight Ghost Hunt server for SteamCMD updating.",
+            "env_variable": "APP_ID",
+            "default_value": "915810",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Beta Tag (optional)",
+            "description": "Used for setting a beta tag for SteamCMD updating.",
+            "env_variable": "BETA_TAG",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        }
+    ]
+}
