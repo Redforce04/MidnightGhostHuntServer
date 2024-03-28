@@ -1,4 +1,3 @@
-LABEL org.opencontainers.image.source https://github.com/Redforce04/MidnightGhostHuntServer
 FROM ubuntu:18.04 as builder
 RUN dpkg --add-architecture i386
 RUN apt-get update && apt-get install -y \
@@ -27,6 +26,7 @@ RUN cd /opt/wine64-build && make install
 
 
 FROM ubuntu:18.04
+LABEL org.opencontainers.image.source https://github.com/Redforce04/MidnightGhostHuntServer
 RUN dpkg --add-architecture i386
 #RUN apt install -y xvfb wget
 WORKDIR /home/container
