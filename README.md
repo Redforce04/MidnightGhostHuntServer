@@ -18,6 +18,7 @@ Execute the actions in the Dockerfile for installing critical dependencies. Once
 
 ## Docker
 The dockerfile attached should allow for quick installation. It is designed for pterodactyl but can be modified to run directly via docker. Mounts and files may have to be added manually.
+The build time is pretty long but it is because it has to pull many things and build some stuff manually iirc. Idk why I did it like this, but I think it was tricky getting it to work for whatever reason (ParkerVCP please make a better egg than mine dear god).
 
 ## Pterodactyl
 
